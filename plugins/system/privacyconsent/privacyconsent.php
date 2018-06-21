@@ -480,8 +480,11 @@ class PlgSystemPrivacyconsent extends JPlugin
 			return;
 		}
 
-		// Delete the expired privacy consent
+		// Delete the expired privacy consents
 		$this->deleteExpiredConsents();
+
+		// Remind for privacy consents near to expire
+		$this->remindExpiringConsents();
 
 	}
 
