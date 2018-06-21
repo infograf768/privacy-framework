@@ -125,7 +125,7 @@ class PrivacyControllerRequest extends JControllerLegacy
 	}
 
 	/**
-	 * Method to extend the privacy conset.
+	 * Method to extend the privacy consent.
 	 *
 	 * @return  boolean
 	 *
