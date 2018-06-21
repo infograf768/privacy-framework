@@ -437,11 +437,11 @@ class PlgSystemPrivacyconsent extends JPlugin
 		$this->params->set('lastrun', $now);
 		$db    = $this->db;
 		$query = $db->getQuery(true)
-			->update($db->qn('#__extensions'))
-			->set($db->qn('params') . ' = ' . $db->q($this->params->toString('JSON')))
-			->where($db->qn('type') . ' = ' . $db->q('plugin'))
-			->where($db->qn('folder') . ' = ' . $db->q('system'))
-			->where($db->qn('element') . ' = ' . $db->q('privacyconsent'));
+			->update($db->quoteName('#__extensions'))
+			->set($db->quoteName('params') . ' = ' . $db->quote($this->params->toString('JSON')))
+			->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+			->where($db->quoteName('folder') . ' = ' . $db->quote('system'))
+			->where($db->quoteName('element') . ' = ' . $db->quote('privacyconsent'));
 		try
 		{
 			// Lock the tables to prevent multiple plugin executions causing a race condition
@@ -460,7 +460,7 @@ class PlgSystemPrivacyconsent extends JPlugin
 		}
 		catch (Exception $exc)
 		{
-			// If we failed to execite
+			// If we failed to execute
 			$db->unlockTables();
 			$result = false;
 		}
@@ -505,7 +505,7 @@ class PlgSystemPrivacyconsent extends JPlugin
 
 		$db    = $this->db;
 		$query = $db->getQuery(true)
-			->select('r.id, r.user_id, u.email');
+			->select($db->quoteName(array('r.id, r.user_id, u.email')));
 		$query->from($db->quoteName('#__privacy_consents', 'r'));
 		$query->join('LEFT', $db->quoteName('#__users', 'u') . ' ON u.id = r.user_id');
 		$query->where($query->dateAdd($now, $period, 'DAY') . ' > ' . $db->quoteName('created'));
@@ -566,7 +566,7 @@ class PlgSystemPrivacyconsent extends JPlugin
 					return false;
 				}
 
-				// Update the privacy_consents item for not send the reminder again
+				// Update the privacy_consents item to not send the reminder again
 				$query->clear()
 					->update($db->quoteName('#__privacy_consents'))
 					->set($db->quoteName('remind') . ' = 1 ')
