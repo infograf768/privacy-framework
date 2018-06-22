@@ -608,22 +608,50 @@ class PlgSystemPrivacyconsent extends JPlugin
 
 		$db    = $this->db;
 		$query = $db->getQuery(true)
-			->delete($db->quoteName('#__privacy_consents'));
+			->select($db->quoteName(array('id', 'user_id')))
+			->from($db->quoteName('#__privacy_consents'));
 		$query->where($query->dateAdd($now, $period, 'DAY') . ' > ' . $db->quoteName('created'));
 		$db->setQuery($query);
 
 		try
 		{
-			$db->execute();
-
-			return true;
+			$users = $db->loadObjectList();
 		}
 		catch (RuntimeException $e)
 		{
 			return false;
 		}
-	}
 
+		// Push a notification to the site's super users
+		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_messages/models', 'MessagesModel');
+		JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_messages/tables');
+		/** @var MessagesModelMessage $messageModel */
+		$messageModel = JModelLegacy::getInstance('Message', 'MessagesModel');
+
+		foreach ($users as $user)
+		{
+			$query = $db->getQuery(true)
+				->delete($db->quoteName('#__privacy_consents'));
+			$query->where($db->quoteName('id') . ' = ' . $user->id);
+			$db->setQuery($query);
+
+			try
+			{
+				$db->execute();
+			}
+			catch (RuntimeException $e)
+			{
+				return false;
+			}
+
+			$messageModel->notifySuperUsers(
+				JText::_('PLG_SYSTEM_PRIVACYCONSENT_NOTIFICATION_USER_PRIVACY_EXPIRED_SUBJECT'),
+				JText::sprintf('PLG_SYSTEM_PRIVACYCONSENT_NOTIFICATION_USER_PRIVACY_EXPIRED_MESSAGE', $user->user_id)
+			);
+		}
+
+		return true;
+	}
 	/**
 	 * Clears cache groups. We use it to clear the plugins cache after we update the last run timestamp.
 	 *
