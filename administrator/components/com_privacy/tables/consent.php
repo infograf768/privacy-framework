@@ -14,7 +14,7 @@ defined('_JEXEC') or die;
  *
  * @property   integer  $id                        Item ID (primary key)
  * @property   integer  $remind                    The status of the remind request
- * @property   string   $token                     Hashed token for the remind request
+ * @property   string   $token                     Hashed token for the reminder request
  * @property   integer  $user_id                   User ID (pseudo foreign key to the #__users table) if the request is associated to a user account
  *
  * @since  __DEPLOY_VERSION__
