@@ -88,9 +88,9 @@
 					label="PLG_SYSTEM_PRIVACYCONSENT_CONSENTEXPIRATION_LABEL"
 					description="PLG_SYSTEM_PRIVACYCONSENT_CONSENTEXPIRATION_DESC"
 					first="180"
-					last="730"
+					last="720"
 					step="30"
-					default="365"
+					default="360"
 					filter="int"
 					validate="number"
 				/>
