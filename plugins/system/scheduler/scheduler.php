@@ -27,18 +27,19 @@ class PlgSystemScheduler extends JPlugin
 	protected $autoloadLanguage = true;
 
 	/**
-	 * The scheduler is triggered after the page has fully rendered.
+	 * The scheduler is triggered after the response is sent.
 	 *
 	 * @return  void
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
-	public function onAfterRender()
+	public function onAfterRespond()
 	{
+		$startTime = microtime(true);
 		// Get the timeout for Joomla! system scheduler
 		/** @var \Joomla\Registry\Registry $params */
 		$cache_timeout = (int) $this->params->get('cachetimeout', 1);
-		$cache_timeout = 3600 * $cache_timeout;
+		$cache_timeout = 60 * $cache_timeout;
 
 		// Do we need to run? Compare the last run timestamp stored in the plugin's options with the current
 		// timestamp. If the difference is greater than the cache timeout we shall not execute again.
@@ -49,6 +50,12 @@ class PlgSystemScheduler extends JPlugin
 		{
 			return;
 		}
+
+		JLog::add(
+			'Main Scheduler',
+			JLog::INFO,
+			'scheduler'
+		);
 
 		// Update last run status
 		$this->params->set('lastrun', $now);
@@ -103,9 +110,16 @@ class PlgSystemScheduler extends JPlugin
 			return;
 		}
 
-		// check all tasks plugin and if needed trigger those
+		// Check all tasks plugin and if needed trigger those
 		$this->checkAndTrigger();
-
+		// Log the time it took to run
+		$endTime    = microtime(true);
+		$timeToLoad = sprintf('%0.2f', $endTime - $startTime);
+		JLog::add(
+			'Main Scheduler tooks ' . $timeToLoad . ' seconds',
+			JLog::INFO,
+			'scheduler'
+		);
 	}
 
 	/**
@@ -159,11 +173,23 @@ class PlgSystemScheduler extends JPlugin
 				continue;
 			}
 
+			$startTime = microtime(true);
+			JLog::add(
+				'Main Scheduler:' . $task->extension_id . ':' . $task->name,
+				JLog::INFO,
+				'scheduler'
+			);
 			// Update lastrun
 			$this->updateLastRun($task->extension_id, $task->params);
 			$dispatcher->trigger('onExecuteScheduledTask', array($this));
+			$endTime    = microtime(true);
+			$timeToLoad = sprintf('%0.2f', $endTime - $startTime);
+			JLog::add(
+				'Main Scheduler:' . $task->extension_id . ':' . $task->name . ' tooks ' . $timeToLoad . ' seconds',
+				JLog::INFO,
+				'scheduler'
+			);
 		}
-
 	}
 
 	/**
