@@ -25,9 +25,9 @@
 					label="PLG_SYSTEM_SCHEDULER_CACHETIMEOUT_LABEL"
 					description="PLG_SYSTEM_SCHEDULER_CACHETIMEOUT_DESC"
 					first="0"
-					last="120"
+					last="5"
 					step="1"
-					default="30"
+					default="3"
 					filter="int"
 					validate="number"
 				/>
